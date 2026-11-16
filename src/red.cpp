@@ -1,6 +1,7 @@
 #include "red.h"
 #include "config.h"
-#include <ETH.h>  // Librería nativa del core de Arduino para ESP32[cite: 1]
+#include <ETH.h>
+#include <WiFi.h>  // Se agrega para el manejo de eventos en el Core 2.x de ESP32
 
 static bool estadoConexion = false;
 
@@ -27,8 +28,11 @@ static void manejarEventosWiFi(WiFiEvent_t event) {
 }
 
 void inicializarEthernet() {
-    Network.onEvent(manejarEventosWiFi);
-    ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);//[cite: 1]
+    // Se utiliza WiFi.onEvent para registrar callbacks del sistema de red
+    WiFi.onEvent(manejarEventosWiFi);
+    
+    // Inicialización del PHY LAN8720 con el bus RMII
+    ETH.begin(ETH_ADDR, ETH_POWER_PIN, ETH_MDC_PIN, ETH_MDIO_PIN, ETH_TYPE, ETH_CLK_MODE);
 }
 
 bool estaLanConectada() {
