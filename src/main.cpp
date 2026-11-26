@@ -23,7 +23,9 @@
  *   media <n>   segundos de la media móvil (1 a 30)
  *   wifi <red> <clave>   guarda la red Wi-Fi de la casa
  *   ip          muestra la dirección de la página web
- *   eth / eth test   estado del Ethernet ENC28J60 / prueba de internet (si está activado)
+ *   nube <servidor> <usuario> <clave>   acceso desde internet (MQTT). 'nube publica' para probar,
+ *                                       'nube off' para apagarlo, 'nube' para ver el estado
+ *   eth / eth test  estado del Ethernet ENC28J60 / prueba de internet (si está activado)
  *   zero e      pone la energía en 0
  *   raw         muestra / oculta los datos de los pines
  *   show        constantes guardadas       pausa   detiene / reanuda la consola
@@ -38,6 +40,7 @@
 #include "meter.h"
 #include "web.h"
 #include "eth.h"
+#include "cloud.h"
 
 // --- Muestreo ---
 static const uint32_t SAMPLE_RATE_HZ = 4000;
@@ -117,7 +120,7 @@ static size_t s_wave_count = 0;
 static volatile int s_req_avg = -1;
 static volatile bool s_req_energy_reset = false;
 
-static char cmd_buf[96];
+static char cmd_buf[256];
 static uint8_t cmd_len = 0;
 
 // ----------------------------------------------------------------------------
@@ -302,6 +305,27 @@ static void handle_command(char *cmd) {
     }
   } else if (strcmp(cmd, "ip") == 0) {
     web_request_print_ip();
+  } else if (strcmp(cmd, "nube") == 0) {
+    cloud_request_status();
+  } else if (strcmp(cmd, "nube off") == 0) {
+    cloud_disable();
+  } else if (strcmp(cmd, "nube publica") == 0) {
+    // Servidor público de prueba: sin cuenta, pero cualquiera que conozca el código puede ver los datos
+    cloud_configure("broker.hivemq.com", 1883, "", "");
+    Serial.println(">> Usando el servidor público de prueba broker.hivemq.com (sin clave).");
+  } else if (strncmp(cmd, "nube ", 5) == 0) {
+    // nube <servidor[:puerto]> <usuario> <clave>
+    char host[96] = "", user[64] = "", pass[96] = "";
+    int n = sscanf(cmd + 5, "%95s %63s %95s", host, user, pass);
+    if (n < 1) {
+      Serial.println(">> Uso: nube <servidor[:puerto]> <usuario> <clave>  |  nube publica  |  nube off  |  nube");
+    } else {
+      uint16_t port = 8883;
+      char *colon = strrchr(host, ':');
+      if (colon) { port = (uint16_t)atoi(colon + 1); *colon = '\0'; }
+      cloud_configure(host, port, user, pass);
+      Serial.printf(">> Servidor '%s:%u' guardado. Conectando...\n", host, port);
+    }
   } else if (strcmp(cmd, "eth") == 0) {
     eth_request_status();
   } else if (strcmp(cmd, "eth test") == 0) {
@@ -319,6 +343,7 @@ static void handle_command(char *cmd) {
   } else {
     Serial.println(">> Comandos: cal v <V> | cal i <A> | ruido | invertir | kv <n> | ki <n> | media <n>");
     Serial.println(">>           wifi <red> <clave> | ip | eth | eth test | zero e | raw | show | pausa");
+    Serial.println(">>           nube <servidor> <usuario> <clave> | nube publica | nube off | nube");
   }
 }
 
@@ -399,6 +424,7 @@ void setup() {
   show_constants();
 
   web_init();
+  cloud_init();  // acceso desde internet por MQTT (si está configurado)
   eth_init();   // no hace nada mientras ENABLE_ETHERNET = 0 (src/eth.h)
 }
 

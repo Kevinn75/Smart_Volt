@@ -1,205 +1,265 @@
+// GENERADO AUTOMÁTICAMENTE desde docs/index.html por tools/embed_page.py.
+// No editar este archivo: los cambios se pierden al compilar.
 #ifndef WEB_PAGE_H
 #define WEB_PAGE_H
 
 #include <Arduino.h>
 
-// Página completa (HTML + CSS + JS) sin dependencias externas: funciona también
-// conectado a la red propia del medidor, sin internet.
 static const char WEB_PAGE[] PROGMEM = R"rawliteral(<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f3f5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0f12" media="(prefers-color-scheme: dark)">
 <title>Smart Volt</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='6' fill='%23f5a400'/%3E%3Cpath d='M13 3 5 14h6l-1 7 8-11h-6z' fill='%231b1400'/%3E%3C/svg%3E">
+<!--
+  Smart Volt: página única del medidor.
+  - Servida por el ESP32 (http://smartvolt.local): modo LOCAL, lee /api/*.
+  - Publicada en GitHub Pages (https://...): modo REMOTO, lee por MQTT desde internet.
+  El firmware la incrusta con tools/embed_page.py: editar SOLO este archivo.
+-->
 <style>
 :root{
-  --bg:#f4f4f2; --surface:#fcfcfb; --border:#e3e2de;
-  --text:#0b0b0b; --text2:#52514e; --muted:#8a8984; --grid:#ecebe7;
-  --series:#2a78d6; --series-fill:rgba(42,120,214,.10); --series2:#d96b18;
-  --series3:#7a4fd0; --series3-fill:rgba(122,79,208,.16); --neg-fill:rgba(208,59,59,.18);
-  --good:#0ca30c; --warn:#b77a00; --crit:#d03b3b;
-  --btn:#0b0b0b; --btn-text:#fcfcfb;
-  --money:#0a7d4f; --money-tint:rgba(10,125,79,.07); --money-line:rgba(10,125,79,.25);
+  --bg:#f2f3f5; --surface:#ffffff; --surface2:#f7f8fa; --border:#e3e6ea;
+  --text:#0e1116; --text2:#4b5563; --muted:#8a919c; --grid:#eceef1;
+  --brand:#f5a400; --brand-ink:#1b1400; --brand-soft:rgba(245,164,0,.12);
+  --series:#2a78d6; --series-fill:rgba(42,120,214,.10);
+  --series2:#e07a1f;
+  --series3:#7a4fd0; --series3-fill:rgba(122,79,208,.15); --neg-fill:rgba(217,61,61,.16);
+  --good:#12a150; --warn:#c48a00; --crit:#d93d3d;
+  --money:#0a7d4f; --money-soft:rgba(10,125,79,.08); --money-line:rgba(10,125,79,.22);
+  --btn:#0e1116; --btn-text:#ffffff;
+  --shadow:0 1px 2px rgba(16,24,40,.04),0 6px 20px rgba(16,24,40,.06);
+  --radius:18px;
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#111110; --surface:#1a1a19; --border:#2e2e2b;
-    --text:#f0efec; --text2:#c3c2b7; --muted:#8f8e86; --grid:#2a2a27;
-    --series:#3987e5; --series-fill:rgba(57,135,229,.16); --series2:#f59e0b;
-    --series3:#a78bfa; --series3-fill:rgba(167,139,250,.18); --neg-fill:rgba(230,103,103,.22);
-    --good:#0ca30c; --warn:#fab219; --crit:#e66767;
-    --btn:#f0efec; --btn-text:#1a1919;
-    --money:#2fbf84; --money-tint:rgba(47,191,132,.09); --money-line:rgba(47,191,132,.3);
+  :root{
+    --bg:#0d0f12; --surface:#15181d; --surface2:#1b1f25; --border:#262b33;
+    --text:#eef1f5; --text2:#b4bcc8; --muted:#7f8794; --grid:#22272f;
+    --brand:#ffbe2e; --brand-ink:#1b1400; --brand-soft:rgba(255,190,46,.12);
+    --series:#4b93ec; --series-fill:rgba(75,147,236,.16);
+    --series2:#f59e0b;
+    --series3:#a78bfa; --series3-fill:rgba(167,139,250,.18); --neg-fill:rgba(240,110,110,.22);
+    --good:#2fbf71; --warn:#f2b230; --crit:#f06e6e;
+    --money:#2fbf84; --money-soft:rgba(47,191,132,.09); --money-line:rgba(47,191,132,.28);
+    --btn:#eef1f5; --btn-text:#0d0f12;
+    --shadow:0 1px 2px rgba(0,0,0,.3);
   }
 }
 *{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--bg);color:var(--text);
-  font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-.wrap{max-width:1040px;margin:0 auto;padding:16px}
-header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:14px}
-h1{font-size:20px;margin:0;font-weight:650;letter-spacing:-.01em}
-.conn{font-size:13px;color:var(--text2);display:flex;align-items:center;gap:6px}
-.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
-.dot.ok{background:var(--good)} .dot.bad{background:var(--crit)}
-.hero{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px}
-.hero .lbl{font-size:13px;color:var(--text2)}
-.hero .big{font-size:44px;font-weight:650;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-.hero .big small{font-size:20px;font-weight:500;color:var(--text2);margin-left:4px}
-.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:12px}
-.tile{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
-.tile .lbl{font-size:12px;color:var(--text2)}
-.tile .val{font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
-.tile .val small{font-size:13px;font-weight:500;color:var(--text2);margin-left:3px}
-.alerts{margin-bottom:12px;display:flex;flex-direction:column;gap:6px}
-.alert{border:1px solid var(--border);border-left:4px solid var(--warn);background:var(--surface);
-  border-radius:8px;padding:8px 12px;font-size:14px}
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding:16px 16px 32px}
+[hidden]{display:none!important}
+.num{font-variant-numeric:tabular-nums}
+
+/* Barra superior */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--brand);display:grid;place-items:center;
+  box-shadow:0 4px 14px var(--brand-soft)}
+.logo svg{width:22px;height:22px}
+.brand b{display:block;font-size:18px;letter-spacing:-.01em;line-height:1.1}
+.brand span{font-size:12.5px;color:var(--text2)}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:var(--surface);
+  border:1px solid var(--border);font-size:12.5px;color:var(--text2);max-width:60vw;box-shadow:var(--shadow)}
+.pill span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--good);box-shadow:0 0 0 4px rgba(18,161,80,.15);animation:pulse 2s infinite}
+.dot.bad{background:var(--crit)}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(18,161,80,0)}}
+
+/* Tarjetas */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.sec-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:26px 2px 10px}
+.sec-title h2{font-size:17px;margin:0;font-weight:650;letter-spacing:-.01em}
+.lbl{font-size:12.5px;color:var(--text2)}
+.msg{font-size:13px;color:var(--text2)}
+
+/* Héroe: potencia + medidor */
+.hero{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;padding:20px 22px;
+  background:linear-gradient(135deg,var(--brand-soft),transparent 60%),var(--surface)}
+.big{font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin:2px 0 10px}
+.big small{font-size:22px;font-weight:550;color:var(--text2);margin-left:6px;letter-spacing:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:5px 10px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);color:var(--text2)}
+.chip b{color:var(--text);font-weight:600}
+.gauge{width:180px;text-align:center}
+.gauge svg{width:180px;height:104px;display:block}
+.gauge .g-pct{font-size:22px;font-weight:700;margin-top:-34px}
+.gauge .g-lbl{font-size:11.5px;color:var(--muted)}
+@media (max-width:560px){
+  .hero{grid-template-columns:1fr;padding:18px}
+  .big{font-size:46px}
+  .gauge{margin:0 auto}
+}
+
+/* Mosaicos */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.tile{display:flex;gap:11px;align-items:center;padding:13px 14px}
+.ico{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none}
+.ico svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tile .val{font-size:21px;font-weight:650;line-height:1.15}
+.tile .val small{font-size:12.5px;font-weight:500;color:var(--text2);margin-left:3px}
+.c-blue{background:rgba(42,120,214,.12);color:var(--series)}
+.c-orange{background:rgba(224,122,31,.13);color:var(--series2)}
+.c-violet{background:rgba(122,79,208,.13);color:var(--series3)}
+.c-green{background:var(--money-soft);color:var(--money)}
+.c-amber{background:var(--brand-soft);color:var(--warn)}
+
+/* Alertas */
+.alerts{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.alerts:empty{display:none}
+.alert{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--border);background:var(--surface);
+  border-left:4px solid var(--warn);border-radius:12px;padding:10px 14px;font-size:14px}
 .alert.crit{border-left-color:var(--crit)}
 .alert b{margin-right:4px}
-.toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin:18px 0 8px}
-.toolbar h2{font-size:16px;margin:0;font-weight:600}
-.seg{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
-.seg button{border:0;background:transparent;color:var(--text2);padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
-.seg button.on{background:var(--btn);color:var(--btn-text)}
-.charts{display:grid;gap:10px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 12px 6px}
-.card h3{font-size:13px;font-weight:600;margin:0 0 4px 4px;color:var(--text)}
-.card h3 span{color:var(--text2);font-weight:500}
-.plot{position:relative;height:170px}
-.plot canvas{width:100%;height:100%;display:block;touch-action:pan-y}
-.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--text);border:1px solid var(--border);
-  border-radius:8px;padding:6px 9px;font-size:12px;box-shadow:0 4px 14px rgba(0,0,0,.12);white-space:nowrap;display:none;
-  font-variant-numeric:tabular-nums}
-.tip .t{color:var(--text2)}
-details{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-top:18px}
-summary{cursor:pointer;font-weight:600}
-.cfg{display:grid;gap:16px;margin-top:12px}
-.cfg h4{margin:0 0 6px;font-size:14px}
-.cfg p{margin:0 0 8px;color:var(--text2);font-size:13px}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-input{font:inherit;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);min-width:0}
-input[type=number]{width:80px}
-.btn{font:inherit;font-size:14px;padding:7px 14px;border-radius:8px;border:1px solid var(--btn);background:var(--btn);color:var(--btn-text);cursor:pointer}
-.btn.ghost{background:transparent;color:var(--text)}
-.btn.active{background:var(--crit);border-color:var(--crit);color:#fff}
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:12px}
-.panel h3{font-size:14px;font-weight:600;margin:0 0 8px}
-.chk{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text2);cursor:pointer}
-.legend{display:flex;gap:14px;font-size:12px;color:var(--text2);margin:0 0 4px 4px}
-.legend span{display:inline-flex;align-items:center;gap:5px}
-.sw{display:inline-block;width:12px;height:3px;border-radius:2px}
-.msg{font-size:13px;color:var(--text2)}
-select{font:inherit;padding:7px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text)}
-.bill{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;margin:18px 0 12px;
-  background-image:linear-gradient(135deg,var(--money-tint),transparent 55%)}
+
+/* Costo */
+.bill{background:linear-gradient(135deg,var(--money-soft),transparent 55%),var(--surface)}
 .bill-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
-.bill-head h2{font-size:18px;margin:0 0 2px;font-weight:650}
-.badge{font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--money-tint);color:var(--money);
+.bill-head h2{font-size:17px;margin:0 0 2px;font-weight:650}
+.badge{font-size:12px;font-weight:600;padding:4px 11px;border-radius:999px;background:var(--money-soft);color:var(--money);
   border:1px solid var(--money-line);white-space:nowrap}
 .bill-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
-@media (max-width:620px){.bill-grid{grid-template-columns:1fr}}
-.bill-main,.mini{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+@media (max-width:640px){.bill-grid{grid-template-columns:1fr}}
+.inner{background:var(--surface2);border:1px solid var(--border);border-radius:14px;padding:14px 16px}
 .bill-side{display:grid;gap:12px}
-.bill .lbl{font-size:12px;color:var(--text2)}
-.money{font-size:42px;font-weight:700;letter-spacing:-.02em;color:var(--money);font-variant-numeric:tabular-nums;line-height:1.15}
-.money.sm{font-size:24px;font-weight:650}
+.money{font-size:40px;font-weight:700;letter-spacing:-.02em;color:var(--money);line-height:1.15}
+.money.sm{font-size:23px;font-weight:650}
 .meter{margin-top:12px}
 .meter-bar{height:8px;border-radius:999px;background:var(--grid);overflow:hidden;margin-bottom:5px}
 .meter-bar i{display:block;height:100%;width:0;background:var(--money);border-radius:999px;transition:width .4s}
-.bill-cfg{display:flex;flex-wrap:wrap;gap:14px 20px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
-.bill-cfg .lbl{margin-bottom:5px}
+.bill-cfg{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+.bill-cfg .lbl{margin-bottom:6px}
+.note{font-size:12px;color:var(--muted);margin-top:12px}
+
+/* Controles */
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2)}
+.seg button{border:0;background:transparent;color:var(--text2);padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+.seg button.on{background:var(--btn);color:var(--btn-text)}
 .seg.est button.on{background:var(--money);color:#fff}
-.bill-note{font-size:12px;color:var(--muted);margin-top:12px}
-@media (max-width:520px){.money{font-size:34px}}
-footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
-@media (max-width:520px){.hero .big{font-size:36px}.tile .val{font-size:21px}}
+input,select{font:inherit;font-size:14px;padding:8px 11px;border:1px solid var(--border);border-radius:10px;
+  background:var(--surface2);color:var(--text);min-width:0}
+input:focus,select:focus{outline:2px solid var(--series);outline-offset:1px}
+input[type=number]{width:96px}
+input[type=checkbox]{width:16px;height:16px;padding:0;accent-color:var(--series)}
+.btn{font:inherit;font-size:14px;font-weight:550;padding:8px 15px;border-radius:10px;border:1px solid var(--btn);
+  background:var(--btn);color:var(--btn-text);cursor:pointer}
+.btn:hover{opacity:.9}
+.btn.ghost{background:transparent;color:var(--text);border-color:var(--border)}
+.btn.on{background:var(--crit);border-color:var(--crit);color:#fff}
+.btn.sm{padding:5px 11px;font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field{display:flex;flex-direction:column;gap:5px}
+.chk{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--text2);cursor:pointer}
+
+/* Gráficas */
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media (max-width:820px){.charts2{grid-template-columns:1fr}}
+.card h3{font-size:14px;font-weight:600;margin:0 0 6px 2px}
+.card h3 span{color:var(--text2);font-weight:500}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--text2);margin:0 0 6px 2px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:12px;height:3px;border-radius:2px}
+.plot{position:relative;height:200px}
+.plot canvas{width:100%;height:100%;display:block;touch-action:pan-y}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--text);border:1px solid var(--border);
+  border-radius:10px;padding:7px 10px;font-size:12px;box-shadow:0 6px 20px rgba(0,0,0,.14);white-space:nowrap;display:none;
+  font-variant-numeric:tabular-nums}
+.tip .t{color:var(--text2)}
+
+/* Ajustes */
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.settings h3{font-size:15px;margin:0 0 4px;font-weight:650;display:flex;align-items:center;gap:8px}
+.settings h3 .ico{width:28px;height:28px;border-radius:9px}
+.settings h3 .ico svg{width:15px;height:15px}
+.settings p{margin:0 0 12px;color:var(--text2);font-size:13px}
+.settings .row + .row{margin-top:10px}
+.linkbox{display:flex;gap:6px;margin-top:10px}
+.linkbox input{flex:1;font-size:12.5px}
+
+/* Ingreso remoto */
+.login{position:fixed;inset:0;background:var(--bg);display:grid;place-items:center;padding:16px;z-index:10}
+.login .card{width:100%;max-width:400px;padding:24px}
+.login h1{font-size:21px;margin:14px 0 4px}
+.login .field{margin-top:12px}
+.login .btn{width:100%;margin-top:18px;padding:11px}
+.err{color:var(--crit);font-size:13px;margin-top:10px;min-height:1em}
+
+footer{color:var(--muted);font-size:12px;margin:26px 0 4px;text-align:center}
+footer a{color:var(--text2)}
 </style>
 </head>
 <body>
+
+<!-- ===================== Ingreso (solo modo remoto) ===================== -->
+<div class="login" id="login" hidden>
+  <div class="card">
+    <div class="logo"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z" fill="#1b1400"/></svg></div>
+    <h1>Smart Volt desde internet</h1>
+    <div class="msg">Escribe los datos del servidor MQTT que configuraste en el medidor. Se guardan solo en este navegador.</div>
+    <div class="field"><label class="lbl" for="lgHost">Servidor</label><input id="lgHost" placeholder="xxxx.s1.eu.hivemq.cloud" autocomplete="off" autocapitalize="off"></div>
+    <div class="field"><label class="lbl" for="lgUser">Usuario</label><input id="lgUser" autocomplete="username" autocapitalize="off"></div>
+    <div class="field"><label class="lbl" for="lgPass">Clave</label><input id="lgPass" type="password" autocomplete="current-password"></div>
+    <div class="field"><label class="lbl" for="lgId">Código del medidor</label><input id="lgId" placeholder="sv1a2b3c" autocomplete="off" autocapitalize="off"></div>
+    <button class="btn" id="lgGo">Entrar</button>
+    <div class="err" id="lgErr"></div>
+  </div>
+</div>
+
 <div class="wrap">
-  <header>
-    <h1>Smart Volt</h1>
-    <div class="conn"><span class="dot" id="dot"></span><span id="conn">Conectando…</span></div>
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z" fill="#1b1400"/></svg></div>
+      <div><b>Smart Volt</b><span id="modeLbl">Medidor de energía</span></div>
+    </div>
+    <div class="pill"><i class="dot" id="dot"></i><span id="conn">Conectando…</span></div>
   </header>
 
-  <div class="hero">
-    <div class="lbl">Potencia activa</div>
-    <div class="big" id="p">–<small>W</small></div>
-  </div>
+  <!-- Potencia ahora -->
+  <section class="card hero">
+    <div>
+      <div class="lbl">Potencia activa · ahora</div>
+      <div class="big num"><span id="p">–</span><small>W</small></div>
+      <div class="chips">
+        <span class="chip" id="chHour">Costo por hora <b>–</b></span>
+        <span class="chip" id="chFp">FP <b>–</b></span>
+        <span class="chip" id="chPh">Desfase <b>–</b></span>
+      </div>
+    </div>
+    <div class="gauge" aria-label="Carga respecto a la escala">
+      <svg viewBox="0 0 180 104">
+        <path d="M18 92 A72 72 0 0 1 162 92" pathLength="100" fill="none" stroke="var(--grid)" stroke-width="13" stroke-linecap="round"/>
+        <path id="gArc" d="M18 92 A72 72 0 0 1 162 92" pathLength="100" fill="none" stroke="var(--brand)" stroke-width="13"
+          stroke-linecap="round" stroke-dasharray="0 100" style="transition:stroke-dasharray .6s,stroke .3s"/>
+      </svg>
+      <div class="g-pct num" id="gPct">0%</div>
+      <div class="g-lbl" id="gLbl">de la escala</div>
+    </div>
+  </section>
 
   <div class="tiles">
-    <div class="tile"><div class="lbl">Voltaje</div><div class="val" id="v">–<small>V</small></div></div>
-    <div class="tile"><div class="lbl">Corriente</div><div class="val" id="i">–<small>A</small></div></div>
-    <div class="tile"><div class="lbl">Potencia aparente</div><div class="val" id="s">–<small>VA</small></div></div>
-    <div class="tile"><div class="lbl">Factor de potencia</div><div class="val" id="fp">–</div></div>
-    <div class="tile"><div class="lbl">Energía acumulada</div><div class="val" id="kwh">–<small>kWh</small></div></div>
+    <div class="card tile"><div class="ico c-blue"><svg viewBox="0 0 24 24"><path d="M2 12c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-4 5-2"/></svg></div>
+      <div><div class="lbl">Voltaje</div><div class="val num" id="v">–<small>V</small></div></div></div>
+    <div class="card tile"><div class="ico c-orange"><svg viewBox="0 0 24 24"><path d="M4 12h4l2-5 4 10 2-5h4"/></svg></div>
+      <div><div class="lbl">Corriente</div><div class="val num" id="i">–<small>A</small></div></div></div>
+    <div class="card tile"><div class="ico c-violet"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+      <div><div class="lbl">Potencia aparente</div><div class="val num" id="s">–<small>VA</small></div></div></div>
+    <div class="card tile"><div class="ico c-amber"><svg viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 9 9"/><path d="M12 12 19 5"/></svg></div>
+      <div><div class="lbl">Factor de potencia</div><div class="val num" id="fp">–</div></div></div>
+    <div class="card tile"><div class="ico c-green"><svg viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z"/></svg></div>
+      <div><div class="lbl">Energía acumulada</div><div class="val num" id="kwh">–<small>kWh</small></div></div></div>
   </div>
 
   <div class="alerts" id="alerts"></div>
 
-  <div class="panel">
-    <h3>Límites y salidas (Buzzer / LED)</h3>
-    <div class="row" style="margin-bottom:8px">
-      <span class="msg">I máx (A):</span>
-      <input type="number" id="iLim" min="0" max="100" step="0.1" value="0">
-      <span class="msg">V mín (V):</span>
-      <input type="number" id="vMin" min="0" max="300" step="1" value="0">
-      <span class="msg">V máx (V):</span>
-      <input type="number" id="vMax" min="0" max="300" step="1" value="0">
-      <span class="msg">(0 = desactivado)</span>
-    </div>
-    <div class="row" style="margin-bottom:8px">
-      <label class="chk"><input type="checkbox" id="buzEn" checked> Buzzer en alarma</label>
-      <label class="chk"><input type="checkbox" id="ledEn" checked> LED en alarma</label>
-      <button class="btn" id="limSave">Guardar</button>
-      <span class="msg" id="limMsg"></span>
-    </div>
-    <div class="row">
-      <span class="msg">Prueba manual:</span>
-      <button class="btn ghost" id="buzBtn">Buzzer: OFF</button>
-      <button class="btn ghost" id="ledBtn">LED: OFF</button>
-      <span class="msg" id="outMsg"></span>
-    </div>
-  </div>
-
-  <div class="toolbar">
-    <h2>Potencia en el tiempo</h2>
-    <div class="seg" id="range">
-      <button data-r="60">1 min</button><button data-r="300" class="on">5 min</button><button data-r="600">10 min</button>
-    </div>
-  </div>
-  <div class="card">
-    <h3>Potencia activa <span>(W)</span></h3>
-    <div class="plot" style="height:240px"><canvas id="cP" aria-label="Gráfica de potencia activa"></canvas><div class="tip"></div></div>
-  </div>
-
-  <div class="toolbar">
-    <h2>Formas de onda</h2>
-    <div class="row">
-      <span class="msg" id="phaseInfo">Sin carga</span>
-      <button class="btn ghost" id="wavePause" style="padding:5px 10px;font-size:13px">Pausar</button>
-    </div>
-  </div>
-  <div class="charts">
-    <div class="card">
-      <h3>Voltaje vs corriente</h3>
-      <div class="legend">
-        <span><i class="sw" style="background:var(--series)"></i>Voltaje (V)</span>
-        <span><i class="sw" style="background:var(--series2)"></i>Corriente (A)</span>
-      </div>
-      <div class="plot" style="height:210px"><canvas id="cWave" aria-label="Formas de onda de voltaje y corriente"></canvas><div class="tip"></div></div>
-    </div>
-    <div class="card">
-      <h3>Potencia instantánea <span>p(t) = v(t) · i(t)</span></h3>
-      <div class="legend">
-        <span><i class="sw" style="background:var(--series3)"></i>Potencia (W)</span>
-        <span><i class="sw" style="background:var(--muted)"></i>Promedio = potencia activa</span>
-        <span><i class="sw" style="background:var(--crit)"></i>Vuelve a la red (p &lt; 0)</span>
-      </div>
-      <div class="plot" style="height:210px"><canvas id="cPw" aria-label="Forma de onda de la potencia instantánea"></canvas><div class="tip"></div></div>
-    </div>
-  </div>
-
-  <section class="bill">
+  <!-- Costo -->
+  <div class="sec-title"><h2>Costo de la energía</h2></div>
+  <section class="card bill">
     <div class="bill-head">
       <div>
         <h2>¿Cuánto vas a pagar?</h2>
@@ -207,11 +267,10 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
       </div>
       <span class="badge" id="bBadge">Estrato 3</span>
     </div>
-
     <div class="bill-grid">
-      <div class="bill-main">
+      <div class="inner">
         <div class="lbl">Por pagar hasta ahora</div>
-        <div class="money" id="cAcc">$ –</div>
+        <div class="money num" id="cAcc">$ –</div>
         <div class="msg" id="cAccSub">– kWh consumidos</div>
         <div class="meter" id="subsBox">
           <div class="meter-bar"><i id="subsFill"></i></div>
@@ -219,19 +278,18 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
         </div>
       </div>
       <div class="bill-side">
-        <div class="mini">
+        <div class="inner">
           <div class="lbl">Si sigues así, al mes</div>
-          <div class="money sm" id="cMonth">$ –</div>
+          <div class="money sm num" id="cMonth">$ –</div>
           <div class="msg" id="cMonthSub">–</div>
         </div>
-        <div class="mini">
+        <div class="inner">
           <div class="lbl">Cada hora, con el consumo actual</div>
-          <div class="money sm" id="cHour">$ –</div>
+          <div class="money sm num" id="cHour">$ –</div>
           <div class="msg" id="cHourSub">–</div>
         </div>
       </div>
     </div>
-
     <div class="bill-cfg">
       <div>
         <div class="lbl">Estrato</div>
@@ -253,116 +311,228 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
         </select>
       </div>
     </div>
-    <div class="bill-note" id="bNote"></div>
+    <div class="note" id="bNote"></div>
   </section>
 
-  <details>
-    <summary>Configuración</summary>
-    <div class="cfg">
-      <div>
-        <h4>Media móvil</h4>
-        <p>Promedia las lecturas de los últimos N segundos para que no salten por cambios pequeños.
-           Si se enciende o apaga una carga, el valor se actualiza enseguida.</p>
-        <div class="row"><input type="number" id="avgN" min="1" max="30" value="5"> <span class="msg">segundos</span>
-          <button class="btn" id="avgSave">Guardar</button><span class="msg" id="avgMsg"></span></div>
-      </div>
-      <div>
-        <h4>Energía</h4>
-        <p>Pone en cero el contador de kWh.</p>
-        <div class="row"><button class="btn ghost" id="eReset">Poner en 0</button><span class="msg" id="eMsg"></span></div>
-      </div>
-      <div>
-        <h4>Wi-Fi de la casa</h4>
-        <p id="wifiInfo">Para ver la página desde la red de la casa. La red propia "SmartVolt" sigue activa.</p>
-        <div class="row">
-          <input id="ssid" placeholder="Nombre de la red" maxlength="32">
-          <input id="pass" type="password" placeholder="Clave" maxlength="64">
-          <button class="btn" id="wSave">Conectar</button>
-        </div>
-        <div class="msg" id="wMsg" style="margin-top:6px"></div>
-      </div>
+  <!-- Gráficas -->
+  <div class="sec-title">
+    <h2>Potencia en el tiempo</h2>
+    <div class="seg" id="range">
+      <button data-r="60">1 min</button><button data-r="300" class="on">5 min</button><button data-r="600">10 min</button>
     </div>
-  </details>
+  </div>
+  <div class="card">
+    <div class="plot" style="height:250px"><canvas id="cP" aria-label="Gráfica de potencia activa en el tiempo"></canvas><div class="tip"></div></div>
+  </div>
 
-  <footer id="foot">Actualiza cada segundo</footer>
+  <div class="sec-title">
+    <h2>Formas de onda</h2>
+    <div class="row">
+      <span class="msg" id="phaseInfo">Sin carga</span>
+      <button class="btn ghost sm" id="wavePause">Pausar</button>
+    </div>
+  </div>
+  <div class="charts2">
+    <div class="card">
+      <h3>Voltaje vs corriente</h3>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--series)"></i>Voltaje (V)</span>
+        <span><i class="sw" style="background:var(--series2)"></i>Corriente (A)</span>
+      </div>
+      <div class="plot"><canvas id="cWave" aria-label="Formas de onda de voltaje y corriente"></canvas><div class="tip"></div></div>
+    </div>
+    <div class="card">
+      <h3>Potencia instantánea <span>p(t) = v · i</span></h3>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--series3)"></i>Potencia (W)</span>
+        <span><i class="sw" style="background:var(--text2)"></i>Promedio</span>
+        <span><i class="sw" style="background:var(--crit)"></i>Vuelve a la red</span>
+      </div>
+      <div class="plot"><canvas id="cPw" aria-label="Forma de onda de la potencia instantánea"></canvas><div class="tip"></div></div>
+    </div>
+  </div>
+
+  <!-- Ajustes -->
+  <div class="sec-title"><h2>Ajustes</h2></div>
+  <div class="settings">
+    <section class="card">
+      <h3><span class="ico c-orange"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/></svg></span>Alarmas y salidas</h3>
+      <p>Buzzer y LED se activan al pasar un límite. 0 = desactivado.</p>
+      <div class="row">
+        <div class="field"><span class="lbl">I máx (A)</span><input type="number" id="iLim" min="0" max="100" step="0.1"></div>
+        <div class="field"><span class="lbl">V mín (V)</span><input type="number" id="vMin" min="0" max="300" step="1"></div>
+        <div class="field"><span class="lbl">V máx (V)</span><input type="number" id="vMax" min="0" max="300" step="1"></div>
+      </div>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="buzEn"> Buzzer en alarma</label>
+        <label class="chk"><input type="checkbox" id="ledEn"> LED en alarma</label>
+      </div>
+      <div class="row">
+        <button class="btn" id="limSave">Guardar</button><span class="msg" id="limMsg"></span>
+      </div>
+      <div class="row">
+        <span class="msg">Probar:</span>
+        <button class="btn ghost sm" id="buzBtn">Buzzer: OFF</button>
+        <button class="btn ghost sm" id="ledBtn">LED: OFF</button>
+        <span class="msg" id="outMsg"></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3><span class="ico c-blue"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></span>Medición</h3>
+      <p>La media móvil promedia los últimos N segundos para que los valores no salten. Si se enciende o apaga una carga, se actualiza enseguida.</p>
+      <div class="row">
+        <div class="field"><span class="lbl">Media móvil (s)</span><input type="number" id="avgN" min="1" max="30"></div>
+        <button class="btn" id="avgSave" style="align-self:flex-end">Guardar</button><span class="msg" id="avgMsg" style="align-self:flex-end"></span>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="eReset">Poner energía en 0</button><span class="msg" id="eMsg"></span>
+      </div>
+      <p style="margin-top:10px">Pon la energía en 0 el día que llega el recibo para que el costo sea el del mes.</p>
+    </section>
+
+    <section class="card local-only" hidden>
+      <h3><span class="ico c-violet"><svg viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5v.5"/></svg></span>Wi-Fi de la casa</h3>
+      <p id="wifiInfo">La red propia "SmartVolt" sigue activa como respaldo.</p>
+      <div class="row">
+        <input id="ssid" placeholder="Nombre de la red" maxlength="32">
+        <input id="pass" type="password" placeholder="Clave" maxlength="64">
+        <button class="btn" id="wSave">Conectar</button>
+      </div>
+      <div class="msg" id="wMsg" style="margin-top:8px"></div>
+    </section>
+
+    <section class="card local-only" hidden>
+      <h3><span class="ico c-green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></span>Acceso desde internet</h3>
+      <p id="cloudInfo">El medidor envía sus datos a un servidor MQTT para verlos desde cualquier lugar.</p>
+      <div class="row">
+        <div class="field" style="flex:2 1 200px"><span class="lbl">Servidor</span><input id="clHost" placeholder="xxxx.s1.eu.hivemq.cloud" autocapitalize="off"></div>
+        <div class="field"><span class="lbl">Puerto</span><input type="number" id="clPort" value="8883" style="width:90px"></div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:1 1 130px"><span class="lbl">Usuario</span><input id="clUser" autocapitalize="off"></div>
+        <div class="field" style="flex:1 1 130px"><span class="lbl">Clave</span><input id="clPass" type="password"></div>
+      </div>
+      <div class="row">
+        <button class="btn" id="clSave">Guardar y conectar</button>
+        <button class="btn ghost" id="clOff">Desactivar</button>
+        <span class="msg" id="clMsg"></span>
+      </div>
+      <div class="linkbox" id="clLinkBox" hidden>
+        <input id="clLink" readonly aria-label="Enlace de acceso remoto">
+        <button class="btn ghost sm" id="clCopy">Copiar</button>
+      </div>
+      <div class="note" id="clNote"></div>
+    </section>
+  </div>
+
+  <footer><span id="foot">Smart Volt</span><span id="logout" hidden> · <a href="#" id="logoutA">Cerrar sesión</a></span></footer>
 </div>
 
 <script>
 (function(){
-  const MAXPTS = 600;
-  let range = 300;              // segundos visibles
-  let offset = null;            // reloj del navegador - segundos del medidor
-  let lastT = -1;
-  const T = [], V = [], I = [], P = [];
+  'use strict';
+  // Modo remoto: la página viene de internet (https / archivo). El ESP32 la sirve por http.
+  const REMOTE = location.protocol !== 'http:' || /[?&]remoto\b/.test(location.search);
+  const MQTT_JS = ['https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js',
+                   'https://cdn.jsdelivr.net/npm/mqtt@4.3.7/dist/mqtt.min.js'];
 
   const $ = id => document.getElementById(id);
+  const store = {
+    get(k, d){ try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch(e){ return d; } },
+    set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} },
+    del(k){ try { localStorage.removeItem(k); } catch(e){} }
+  };
   const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
-  const fmt = (x, d) => (x == null || isNaN(x)) ? '–' : x.toLocaleString('es-CO', {minimumFractionDigits:d, maximumFractionDigits:d});
-  const clock = t => { const d = new Date((t + (offset || 0)) * 1000);
-    return d.toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false}); };
+  const fmt = (x, d) => (x == null || isNaN(x)) ? '–' :
+    Number(x).toLocaleString('es-CO', {minimumFractionDigits:d, maximumFractionDigits:d});
+  const money = x => (x == null || isNaN(x)) ? '$ –' : '$ ' + Math.round(x).toLocaleString('es-CO');
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-  // ---------------- Gráficas (canvas, una serie por gráfica) ----------------
+  // ---------------- Estado ----------------
+  const MAXPTS = 600;
+  let range = 300, offset = null, lastT = -1;
+  const T = [], V = [], I = [], P = [];
+  let wave = {dt_ms:0.25, v:[], i:[]}, wavePaused = false;
+  let lastData = null, maxSeenP = 0, buzMan = false, ledMan = false;
+  const clock = t => new Date((t + (offset || 0)) * 1000)
+    .toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false});
+
+  function setConn(state, text){
+    $('dot').className = 'dot' + (state === 'ok' ? ' ok' : state === 'bad' ? ' bad' : '');
+    $('conn').textContent = text;
+  }
+
+  // ---------------- Gráfica de potencia en el tiempo ----------------
   function niceScale(lo, hi, minSpan, zero){
     if (zero){ lo = Math.min(0, lo); hi = Math.max(0, hi); }
-    // Rango mínimo: así el ruido pequeño no se ve como un cambio grande
     if (hi - lo < minSpan){ const c = (hi + lo) / 2; lo = zero && lo >= 0 ? 0 : c - minSpan/2; hi = lo + minSpan; }
     const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / mag;
     const step = (r <= 1 ? 1 : r <= 2 ? 2 : r <= 2.5 ? 2.5 : r <= 5 ? 5 : 10) * mag;
     return {lo: Math.floor(lo/step)*step, hi: Math.ceil(hi/step)*step, step};
   }
-
-  function makeChart(id, data, unit, dec, minSpan, zero){
-    const cv = $(id), tip = cv.parentNode.querySelector('.tip');
-    const ch = {cv, tip, data, unit, dec, minSpan, zero, hover:null, geom:null};
-    const move = e => { const r = cv.getBoundingClientRect(); ch.hover = e.clientX - r.left; draw(ch); };
-    cv.addEventListener('pointermove', move);
-    cv.addEventListener('pointerdown', move);
-    cv.addEventListener('pointerleave', () => { ch.hover = null; draw(ch); });
-    return ch;
-  }
-
-  function draw(ch){
-    const cv = ch.cv, ctx = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
+  function prepCanvas(cv){
+    const ctx = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
     const w = cv.clientWidth, h = cv.clientHeight;
     if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){ cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); }
     ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
+    ctx.font = '11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
+    return {ctx, w, h};
+  }
+  function cursor(ctx, x, Tp, ph){
+    ctx.strokeStyle = css('--muted'); ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(Math.round(x)+.5, Tp); ctx.lineTo(Math.round(x)+.5, Tp + ph); ctx.stroke(); ctx.setLineDash([]);
+  }
+  function placeTip(tip, x, w, y){
+    tip.style.display = 'block';
+    const tw = tip.offsetWidth; let tx = x + 12; if (tx + tw > w) tx = x - tw - 12;
+    tip.style.left = Math.max(0, tx) + 'px'; tip.style.top = y + 'px';
+  }
+  function hoverOf(cv, set){
+    const mv = e => { const r = cv.getBoundingClientRect(); set(e.clientX - r.left); };
+    cv.addEventListener('pointermove', mv);
+    cv.addEventListener('pointerdown', mv);
+    cv.addEventListener('pointerleave', () => set(null));
+  }
 
-    const L = 52, R = 10, Tp = 8, B = 22, pw = w - L - R, ph = h - Tp - B;
+  const cP = $('cP'), cPTip = cP.parentNode.querySelector('.tip');
+  let pHoverT = null;
+  hoverOf(cP, x => { pHoverT = x; drawPower(); });
+
+  function drawPower(){
+    const {ctx, w, h} = prepCanvas(cP);
+    const L = 52, R = 10, Tp = 10, B = 22, pw = w - L - R, ph = h - Tp - B;
     const tMax = T.length ? T[T.length-1] : 0, tMin = tMax - range;
     let i0 = 0; while (i0 < T.length && T[i0] < tMin) i0++;
-    const vals = ch.data.slice(i0), ts = T.slice(i0);
-
+    const vals = P.slice(i0), ts = T.slice(i0);
     let lo = Infinity, hi = -Infinity;
     for (const v of vals){ if (v < lo) lo = v; if (v > hi) hi = v; }
-    if (!vals.length){ lo = 0; hi = ch.minSpan; }
-    const sc = niceScale(lo, hi, ch.minSpan, ch.zero);
+    if (!vals.length){ lo = 0; hi = 50; }
+    const sc = niceScale(lo, hi, 50, true);
     const X = t => L + (t - tMin) / range * pw;
     const Y = v => Tp + (1 - (v - sc.lo) / (sc.hi - sc.lo)) * ph;
 
-    // Rejilla y ejes (recesivos)
-    ctx.font = '11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
     ctx.fillStyle = css('--muted'); ctx.strokeStyle = css('--grid'); ctx.lineWidth = 1;
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    const yd = sc.step < 1 ? (sc.step < 0.1 ? 2 : 1) : 0;
+    const yd = sc.step < 1 ? 1 : 0;
     for (let v = sc.lo; v <= sc.hi + sc.step/2; v += sc.step){
       const y = Math.round(Y(v)) + .5;
       ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(w - R, y); ctx.stroke();
       ctx.fillText(fmt(v, yd), L - 8, y);
     }
-    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.textBaseline = 'top';
     const nX = w < 420 ? 3 : 5;
     for (let k = 0; k <= nX; k++){
-      const t = tMin + range * k / nX; let x = X(t);
+      const t = tMin + range * k / nX;
       ctx.textAlign = k === 0 ? 'left' : k === nX ? 'right' : 'center';
-      if (offset !== null && t >= 0) ctx.fillText(clock(t).slice(0, range > 120 ? 5 : 8), x, h - B + 6);
+      if (offset !== null && t >= 0) ctx.fillText(clock(t).slice(0, range > 120 ? 5 : 8), X(t), h - B + 6);
     }
 
-    // Línea (se corta si faltan más de 3 s de datos)
     if (vals.length > 1){
-      // Relleno suave bajo la línea
       const y0 = Y(Math.max(sc.lo, Math.min(sc.hi, 0)));
-      ctx.fillStyle = css('--series-fill'); ctx.beginPath();
-      ctx.moveTo(X(ts[0]), y0);
+      const grad = ctx.createLinearGradient(0, Tp, 0, Tp + ph);
+      grad.addColorStop(0, css('--series-fill')); grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad; ctx.beginPath(); ctx.moveTo(X(ts[0]), y0);
       for (let k = 0; k < vals.length; k++) ctx.lineTo(X(ts[k]), Y(vals[k]));
       ctx.lineTo(X(ts[ts.length-1]), y0); ctx.closePath(); ctx.fill();
     }
@@ -377,51 +547,26 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
       ctx.stroke();
     }
 
-    // Cruz y etiqueta al pasar el mouse / tocar
-    if (ch.hover !== null && vals.length && ch.hover >= L && ch.hover <= w - R){
-      const tH = tMin + (ch.hover - L) / pw * range;
+    if (pHoverT !== null && vals.length && pHoverT >= L && pHoverT <= w - R){
+      const tH = tMin + (pHoverT - L) / pw * range;
       let best = 0, bd = Infinity;
       for (let k = 0; k < ts.length; k++){ const d = Math.abs(ts[k] - tH); if (d < bd){ bd = d; best = k; } }
       const x = X(ts[best]), y = Y(vals[best]);
-      ctx.strokeStyle = css('--muted'); ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-      ctx.beginPath(); ctx.moveTo(Math.round(x)+.5, Tp); ctx.lineTo(Math.round(x)+.5, Tp + ph); ctx.stroke(); ctx.setLineDash([]);
+      cursor(ctx, x, Tp, ph);
       ctx.fillStyle = css('--series'); ctx.strokeStyle = css('--surface'); ctx.lineWidth = 2;
       ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI*2); ctx.fill(); ctx.stroke();
-      ch.tip.innerHTML = '<div class="t">' + clock(ts[best]) + '</div><b>' + fmt(vals[best], ch.dec) + ' ' + ch.unit + '</b>';
-      ch.tip.style.display = 'block';
-      const tw = ch.tip.offsetWidth; let tx = x + 12; if (tx + tw > w) tx = x - tw - 12;
-      ch.tip.style.left = tx + 'px'; ch.tip.style.top = Math.max(0, Math.min(y - 20, h - 44)) + 'px';
-    } else {
-      ch.tip.style.display = 'none';
-    }
+      cPTip.innerHTML = '<div class="t">' + clock(ts[best]) + '</div><b>' + fmt(vals[best], 1) + ' W</b>';
+      placeTip(cPTip, x, w, Math.max(0, Math.min(y - 20, h - 44)));
+    } else cPTip.style.display = 'none';
   }
 
-  const charts = [
-    makeChart('cP', P, 'W', 1, 50, true),
-  ];
-
-  // ---------------- Formas de onda: V vs I y potencia instantánea ----------------
-  let wave = {dt_ms:0.25, v:[], i:[], fp:0}, wavePaused = false;
-  const hoverOf = (cv, set) => {
-    const mv = e => { const r = cv.getBoundingClientRect(); set(e.clientX - r.left); };
-    cv.addEventListener('pointermove', mv);
-    cv.addEventListener('pointerdown', mv);
-    cv.addEventListener('pointerleave', () => set(null));
-  };
+  // ---------------- Formas de onda ----------------
   const wCv = $('cWave'), wTip = wCv.parentNode.querySelector('.tip');
-  const pCv = $('cPw'),  pTip = pCv.parentNode.querySelector('.tip');
-  let waveHover = null, pHover = null;
+  const pCv = $('cPw'), pTip = pCv.parentNode.querySelector('.tip');
+  let waveHover = null, pwHover = null;
   hoverOf(wCv, x => { waveHover = x; drawWave(); });
-  hoverOf(pCv, x => { pHover = x; drawPWave(); });
+  hoverOf(pCv, x => { pwHover = x; drawPWave(); });
 
-  function prepCanvas(cv){
-    const ctx = cv.getContext('2d'), dpr = window.devicePixelRatio || 1;
-    const w = cv.clientWidth, h = cv.clientHeight;
-    if (cv.width !== Math.round(w*dpr) || cv.height !== Math.round(h*dpr)){ cv.width = Math.round(w*dpr); cv.height = Math.round(h*dpr); }
-    ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,w,h);
-    ctx.font = '11px system-ui,-apple-system,Segoe UI,Roboto,sans-serif';
-    return {ctx, w, h};
-  }
   function timeAxis(ctx, w, h, L, R, B, n){
     const pw = w - L - R, totalMs = (n > 1 ? n - 1 : 133) * wave.dt_ms, nX = w < 420 ? 3 : 5;
     ctx.fillStyle = css('--muted'); ctx.textBaseline = 'top';
@@ -430,20 +575,11 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
       ctx.fillText(fmt(totalMs * k / nX, 1) + ' ms', L + pw * k / nX, h - B + 6);
     }
   }
-  function cursor(ctx, x, Tp, ph){
-    ctx.strokeStyle = css('--muted'); ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.moveTo(Math.round(x)+.5, Tp); ctx.lineTo(Math.round(x)+.5, Tp + ph); ctx.stroke(); ctx.setLineDash([]);
-  }
-  function placeTip(tip, x, w, y){
-    tip.style.display = 'block';
-    const tw = tip.offsetWidth; let tx = x + 12; if (tx + tw > w) tx = x - tw - 12;
-    tip.style.left = tx + 'px'; tip.style.top = y + 'px';
-  }
 
   function drawWave(){
     const {ctx, w, h} = prepCanvas(wCv);
-    const L = 48, R = 48, Tp = 10, B = 22, pw = w - L - R, ph = h - Tp - B;
-    const n = wave.v.length;
+    const L = 44, R = 44, Tp = 10, B = 22, pw = w - L - R, ph = h - Tp - B;
+    const n = Math.min(wave.v.length, wave.i.length);
     let maxV = 20, maxI = 0.5;
     for (let k = 0; k < n; k++){
       maxV = Math.max(maxV, Math.abs(wave.v[k]));
@@ -452,7 +588,6 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
     maxV = Math.ceil(maxV * 1.15 / 10) * 10;
     const iStep = maxI < 2 ? 0.5 : maxI < 10 ? 1 : 5;
     maxI = Math.ceil(maxI * 1.15 / iStep) * iStep;
-
     const yMid = Tp + ph / 2;
     const X = k => L + (n > 1 ? k / (n - 1) : 0) * pw;
     const YV = v => yMid - (v / maxV) * (ph / 2);
@@ -479,7 +614,6 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
       line(wave.v, YV, css('--series'));
       line(wave.i, YI, css('--series2'));
     }
-
     if (waveHover !== null && n > 1 && waveHover >= L && waveHover <= w - R){
       const k = Math.max(0, Math.min(n - 1, Math.round((waveHover - L) / pw * (n - 1))));
       cursor(ctx, X(k), Tp, ph);
@@ -495,12 +629,13 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
     const {ctx, w, h} = prepCanvas(pCv);
     const L = 52, R = 12, Tp = 10, B = 22, pw = w - L - R, ph = h - Tp - B;
     const n = Math.min(wave.v.length, wave.i.length);
-    const pw_ = new Array(n);
+    const pp = new Array(n);
     let lo = 0, hi = 0, sum = 0;
     for (let k = 0; k < n; k++){
       const p = wave.v[k] * wave.i[k];
-      pw_[k] = p; sum += p;
-      if (p < lo) lo = p; if (p > hi) hi = p;
+      pp[k] = p; sum += p;
+      if (p < lo) lo = p;
+      if (p > hi) hi = p;
     }
     const avg = n ? sum / n : 0;
     const sc = niceScale(lo, hi, 20, true);
@@ -520,55 +655,60 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
 
     if (n > 1){
       const y0 = Y(0);
-      // Área positiva (consumo) y negativa (energía que vuelve a la red)
       const area = (sel, color) => {
         ctx.fillStyle = color; ctx.beginPath(); ctx.moveTo(X(0), y0);
-        for (let k = 0; k < n; k++) ctx.lineTo(X(k), Y(sel(pw_[k])));
+        for (let k = 0; k < n; k++) ctx.lineTo(X(k), Y(sel(pp[k])));
         ctx.lineTo(X(n-1), y0); ctx.closePath(); ctx.fill();
       };
       area(p => Math.max(0, p), css('--series3-fill'));
       area(p => Math.min(0, p), css('--neg-fill'));
-
       ctx.strokeStyle = css('--series3'); ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
-      for (let k = 0; k < n; k++){ const x = X(k), y = Y(pw_[k]); if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
+      for (let k = 0; k < n; k++){ const x = X(k), y = Y(pp[k]); if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
       ctx.stroke();
-
-      // Línea del promedio (potencia activa)
       const ya = Math.round(Y(avg)) + .5;
       ctx.strokeStyle = css('--text2'); ctx.lineWidth = 1.5; ctx.setLineDash([6,4]);
       ctx.beginPath(); ctx.moveTo(L, ya); ctx.lineTo(w - R, ya); ctx.stroke(); ctx.setLineDash([]);
       ctx.fillStyle = css('--text2'); ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
       ctx.fillText('P = ' + fmt(avg, avg >= 100 ? 0 : 1) + ' W', w - R - 4, ya - 3);
     }
-
-    if (pHover !== null && n > 1 && pHover >= L && pHover <= w - R){
-      const k = Math.max(0, Math.min(n - 1, Math.round((pHover - L) / pw * (n - 1))));
+    if (pwHover !== null && n > 1 && pwHover >= L && pwHover <= w - R){
+      const k = Math.max(0, Math.min(n - 1, Math.round((pwHover - L) / pw * (n - 1))));
       cursor(ctx, X(k), Tp, ph);
       pTip.innerHTML = '<div class="t">' + fmt(k * wave.dt_ms, 2) + ' ms</div>' +
-        '<div style="color:var(--series3)"><b>' + fmt(pw_[k], 1) + ' W</b></div>' +
+        '<div style="color:var(--series3)"><b>' + fmt(pp[k], 1) + ' W</b></div>' +
         '<div class="t">' + fmt(wave.v[k], 1) + ' V · ' + fmt(wave.i[k], 3) + ' A</div>';
       placeTip(pTip, X(k), w, 8);
     } else pTip.style.display = 'none';
   }
 
+  const drawAll = () => { drawPower(); drawWave(); drawPWave(); };
+  window.addEventListener('resize', drawAll);
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    if (mq.addEventListener) mq.addEventListener('change', drawAll);
+  }
+  document.querySelectorAll('#range button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('#range button').forEach(x => x.classList.toggle('on', x === b));
+    range = +b.dataset.r; drawPower(); renderBill();
+  }));
   $('wavePause').onclick = () => {
     wavePaused = !wavePaused;
     $('wavePause').textContent = wavePaused ? 'Reanudar' : 'Pausar';
   };
 
-  const drawAll = () => { charts.forEach(draw); drawWave(); drawPWave(); };
-  window.addEventListener('resize', drawAll);
-  if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', drawAll);
-
-  document.querySelectorAll('#range button').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('#range button').forEach(x => x.classList.toggle('on', x === b));
-    range = +b.dataset.r; drawAll();
-  }));
-
   function push(t, v, i, p){
     if (t <= lastT) return;
     lastT = t; T.push(t); V.push(v); I.push(i); P.push(p);
     while (T.length > MAXPTS){ T.shift(); V.shift(); I.shift(); P.shift(); }
+  }
+  function mergeHistory(pts){
+    const m = new Map();
+    for (const x of pts) m.set(x[0], x);
+    for (let k = 0; k < T.length; k++) m.set(T[k], [T[k], V[k], I[k], P[k]]);
+    const all = Array.from(m.values()).sort((a, b) => a[0] - b[0]).slice(-MAXPTS);
+    T.length = V.length = I.length = P.length = 0;
+    for (const x of all){ T.push(x[0]); V.push(x[1]); I.push(x[2]); P.push(x[3]); }
+    lastT = T.length ? T[T.length-1] : -1;
   }
 
   // ---------------- Costo según estrato ----------------
@@ -576,59 +716,46 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
   // Estrato 4: tarifa plena. Estratos 5, 6 y comercial: tarifa + 20 % de contribución.
   const SUBSIDIO = {'1':0.60, '2':0.50, '3':0.15};
   const CONTRIB = {'5':0.20, '6':0.20, 'c':0.20};
-  let bill = {e:'3', t:950, s:173};
-  try { Object.assign(bill, JSON.parse(localStorage.getItem('sv_bill') || '{}')); } catch(e){}
-  const saveBill = () => { try { localStorage.setItem('sv_bill', JSON.stringify(bill)); } catch(e){} };
-  const money = x => (x == null || isNaN(x)) ? '$ –' :
-    '$ ' + Math.round(x).toLocaleString('es-CO');
-  let lastData = null;
-
-  // Precio de un kWh cuando ya se llevan "kwh" consumidos
+  const bill = Object.assign({e:'3', t:950, s:173}, store.get('sv_bill', {}));
+  const saveBill = () => store.set('sv_bill', bill);
   function rate(kwh){
-    const e = bill.e, t = bill.t;
-    if (SUBSIDIO[e] !== undefined) return kwh < bill.s ? t * (1 - SUBSIDIO[e]) : t;
-    return t * (1 + (CONTRIB[e] || 0));
+    const t = bill.t;
+    if (SUBSIDIO[bill.e] !== undefined) return kwh < bill.s ? t * (1 - SUBSIDIO[bill.e]) : t;
+    return t * (1 + (CONTRIB[bill.e] || 0));
   }
   function cost(kwh){
-    const e = bill.e, t = bill.t;
-    if (SUBSIDIO[e] !== undefined){
+    const t = bill.t;
+    if (SUBSIDIO[bill.e] !== undefined){
       const a = Math.min(kwh, bill.s), b = Math.max(0, kwh - bill.s);
-      return a * t * (1 - SUBSIDIO[e]) + b * t;
+      return a * t * (1 - SUBSIDIO[bill.e]) + b * t;
     }
-    return kwh * t * (1 + (CONTRIB[e] || 0));
+    return kwh * t * (1 + (CONTRIB[bill.e] || 0));
   }
-
   function renderBill(){
-    const e = bill.e, lbl = e === 'c' ? 'Comercial' : 'Estrato ' + e;
-    $('bBadge').textContent = lbl;
+    const e = bill.e;
+    $('bBadge').textContent = e === 'c' ? 'Comercial' : 'Estrato ' + e;
     document.querySelectorAll('#estrato button').forEach(b => b.classList.toggle('on', b.dataset.e === e));
     if (document.activeElement !== $('tarifa')) $('tarifa').value = bill.t;
     $('subs').value = String(bill.s);
-
     const sub = SUBSIDIO[e];
     $('subs').disabled = sub === undefined;
-    $('bNote').textContent = sub !== undefined
-      ? 'Subsidio del ' + Math.round(sub*100) + ' % en los primeros ' + bill.s + ' kWh del mes. Pon la energía en 0 (Configuración) el día que llega el recibo.'
-      : (CONTRIB[e] ? 'Incluye 20 % de contribución sobre la tarifa. ' : 'Pagas la tarifa plena, sin subsidio ni contribución. ')
-        + 'Pon la energía en 0 (Configuración) el día que llega el recibo.';
-
+    $('bNote').textContent = (sub !== undefined
+      ? 'Subsidio del ' + Math.round(sub*100) + ' % en los primeros ' + bill.s + ' kWh del mes. '
+      : CONTRIB[e] ? 'Incluye 20 % de contribución sobre la tarifa. ' : 'Tarifa plena, sin subsidio ni contribución. ')
+      + 'Valores aproximados: compáralos con tu recibo.';
     if (!lastData) return;
+
     const kwh = Math.max(0, lastData.kwh || 0);
     $('cAcc').textContent = money(cost(kwh));
     $('cAccSub').textContent = fmt(kwh, 2) + ' kWh consumidos';
-
     if (sub !== undefined){
-      const pct = Math.min(100, kwh / bill.s * 100);
-      $('subsBox').style.display = '';
-      $('subsFill').style.width = pct + '%';
+      $('subsBox').hidden = false;
+      $('subsFill').style.width = Math.min(100, kwh / bill.s * 100) + '%';
       $('subsTxt').textContent = kwh < bill.s
         ? 'Llevas ' + fmt(kwh, 1) + ' de ' + bill.s + ' kWh con subsidio'
         : 'Ya pasaste los ' + bill.s + ' kWh con subsidio: el resto va a tarifa plena';
-    } else {
-      $('subsBox').style.display = 'none';
-    }
+    } else $('subsBox').hidden = true;
 
-    // Proyección del mes con el promedio de potencia que muestra la gráfica
     let n = 0, sum = 0;
     const tMin = (T.length ? T[T.length-1] : 0) - range;
     for (let k = 0; k < T.length; k++) if (T[k] >= tMin){ sum += Math.max(0, P[k]); n++; }
@@ -637,11 +764,11 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
     $('cMonth').textContent = money(cost(monthKwh));
     $('cMonthSub').textContent = '≈ ' + fmt(monthKwh, 1) + ' kWh con ' + fmt(avgW, 0) + ' W promedio';
 
-    const nowW = Math.max(0, lastData.p);
-    $('cHour').textContent = money(nowW / 1000 * rate(kwh));
+    const nowW = Math.max(0, lastData.p), perHour = nowW / 1000 * rate(kwh);
+    $('cHour').textContent = money(perHour);
     $('cHourSub').textContent = fmt(nowW, 0) + ' W · ' + money(rate(kwh)) + ' por kWh';
+    $('chHour').innerHTML = 'Costo por hora <b>' + money(perHour) + '</b>';
   }
-
   document.querySelectorAll('#estrato button').forEach(b => b.addEventListener('click', () => {
     bill.e = b.dataset.e; saveBill(); renderBill();
   }));
@@ -652,57 +779,133 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
   $('subs').addEventListener('change', () => { bill.s = +$('subs').value; saveBill(); renderBill(); });
   renderBill();
 
-  // ---------------- Datos ----------------
+  // ---------------- Pintar una lectura ----------------
   function setVal(id, txt, unit){ $(id).innerHTML = txt + (unit ? '<small>' + unit + '</small>' : ''); }
+  function niceMax(x){
+    const m = Math.pow(10, Math.floor(Math.log10(x)));
+    for (const f of [1, 2, 2.5, 5, 10]) if (f * m >= x) return f * m;
+    return 10 * m;
+  }
+  function renderGauge(d){
+    const lim = d.i_lim > 0 && d.v > 0 ? d.i_lim * d.v : 0;
+    maxSeenP = Math.max(maxSeenP, d.p || 0);
+    const scale = lim || niceMax(Math.max(1000, maxSeenP * 1.2));
+    const pct = Math.max(0, Math.min(100, (d.p || 0) / scale * 100));
+    const arc = $('gArc');
+    arc.style.strokeDasharray = pct.toFixed(1) + ' 100';
+    arc.style.opacity = pct < 0.5 ? 0 : 1;
+    arc.style.stroke = pct >= 90 ? 'var(--crit)' : pct >= 70 ? 'var(--warn)' : 'var(--brand)';
+    $('gPct').textContent = Math.round(pct) + '%';
+    $('gLbl').textContent = lim ? 'del límite (' + fmt(lim, 0) + ' W)' : 'de ' + fmt(scale, 0) + ' W';
+  }
 
   function render(d){
-    setVal('p', fmt(d.p, Math.abs(d.p) >= 100 ? 0 : 1), 'W');
+    $('p').textContent = fmt(d.p, Math.abs(d.p) >= 100 ? 0 : 1);
     setVal('v', fmt(d.v, 1), 'V');
     setVal('i', fmt(d.i, d.i < 10 ? 3 : 2), 'A');
     setVal('s', fmt(d.s, 1), 'VA');
     setVal('fp', d.s > 0.5 ? fmt(d.fp, 2) : '–', '');
     setVal('kwh', fmt(d.kwh, 3), 'kWh');
+    renderGauge(d);
+
+    const loaded = d.s > 0.5 && d.i > 0.05;
+    const deg = loaded ? Math.acos(Math.min(1, Math.abs(d.fp))) * 180 / Math.PI : 0;
+    $('chFp').innerHTML = 'FP <b>' + (loaded ? fmt(d.fp, 2) : '–') + '</b>';
+    $('chPh').innerHTML = 'Desfase <b>' + (loaded ? Math.round(deg) + '°' : '–') + '</b>';
+    $('phaseInfo').textContent = loaded ? 'FP ' + fmt(d.fp, 2) + ' · desfase ~' + Math.round(deg) + '°' : 'Sin carga';
 
     const a = [];
     if (!d.v_ok) a.push(['crit', 'Voltaje:', 'el centro del pin es ' + Math.round(d.vb) + ' mV (esperado ~1470). Revisa los 5 V del ZMPT101B, el divisor o el cable.']);
     else if (!d.v_sig) a.push(['', 'Voltaje:', 'no hay señal de la red. ¿El ZMPT101B está conectado al tomacorriente?']);
-    else if (d.v_clip) a.push(['crit', 'Voltaje recortado:', 'pico + ' + d.vpk_p + ' mV / pico − ' + d.vpk_n + ' mV. Gira el potenciómetro del ZMPT101B para bajar la ganancia hasta que los dos picos queden casi iguales, y luego calibra con "cal v".']);
+    else if (d.v_clip) a.push(['crit', 'Voltaje recortado:', 'pico + ' + d.vpk_p + ' mV / pico − ' + d.vpk_n + ' mV. Baja la ganancia del ZMPT101B con su potenciómetro hasta que los picos se igualen y calibra con "cal v".']);
     if (!d.i_ok) a.push(['crit', 'Corriente:', 'el centro del pin es ' + Math.round(d.ib) + ' mV (esperado ~1650). Revisa el divisor 10k/10k, el condensador o el cable.']);
     else if (d.p < -1) a.push(['', 'Corriente:', 'la potencia sale negativa. Gira la pinza o escribe "invertir" en la consola.']);
     if (d.over) a.push(['crit', 'Sobrecarga:', 'la corriente (' + fmt(d.i, 2) + ' A) supera el límite de ' + fmt(d.i_lim, 1) + ' A.']);
     if (d.uv) a.push(['crit', 'Bajo voltaje:', 'el voltaje (' + fmt(d.v, 1) + ' V) está por debajo de ' + fmt(d.v_min, 0) + ' V.']);
     if (d.ov) a.push(['crit', 'Sobrevoltaje:', 'el voltaje (' + fmt(d.v, 1) + ' V) supera el límite de ' + fmt(d.v_max, 0) + ' V.']);
-    $('alerts').innerHTML = a.map(x => '<div class="alert ' + x[0] + '"><b>' + x[1] + '</b>' + x[2] + '</div>').join('');
+    $('alerts').innerHTML = a.map(x => '<div class="alert ' + x[0] + '"><div><b>' + x[1] + '</b>' + esc(x[2]) + '</div></div>').join('');
 
-    if (document.activeElement !== $('iLim')) $('iLim').value = d.i_lim;
-    if (document.activeElement !== $('vMin')) $('vMin').value = d.v_min;
-    if (document.activeElement !== $('vMax')) $('vMax').value = d.v_max;
-    if (document.activeElement !== $('buzEn')) $('buzEn').checked = !!d.buz_en;
-    if (document.activeElement !== $('ledEn')) $('ledEn').checked = !!d.led_en;
+    const idle = el => document.activeElement !== el;
+    if (idle($('iLim'))) $('iLim').value = d.i_lim;
+    if (idle($('vMin'))) $('vMin').value = d.v_min;
+    if (idle($('vMax'))) $('vMax').value = d.v_max;
+    if (idle($('buzEn'))) $('buzEn').checked = !!d.buz_en;
+    if (idle($('ledEn'))) $('ledEn').checked = !!d.led_en;
+    if (idle($('avgN'))) $('avgN').value = d.avg;
     buzMan = !!d.buz_man; ledMan = !!d.led_man;
     $('buzBtn').textContent = 'Buzzer: ' + (d.buz_on ? 'ON' : 'OFF');
-    $('buzBtn').classList.toggle('active', !!d.buz_on);
+    $('buzBtn').classList.toggle('on', !!d.buz_on);
     $('ledBtn').textContent = 'LED: ' + (d.led_on ? 'ON' : 'OFF');
-    $('ledBtn').classList.toggle('active', !!d.led_on);
+    $('ledBtn').classList.toggle('on', !!d.led_on);
 
-    if (d.s > 0.5 && d.i > 0.05){
-      const deg = Math.acos(Math.min(1, Math.abs(d.fp))) * 180 / Math.PI;
-      $('phaseInfo').textContent = 'FP ' + fmt(d.fp, 2) + ' · Desfase ~' + Math.round(deg) + '°';
-    } else {
-      $('phaseInfo').textContent = 'Sin carga';
+    if (!REMOTE){
+      setConn('ok', d.sta ? 'Wi-Fi ' + d.ssid + ' · ' + d.ip : 'Red SmartVolt · ' + d.ap_ip);
+      $('wifiInfo').textContent = (d.sta ? 'Conectado a "' + d.ssid + '" (' + d.ip + ', también http://smartvolt.local). '
+        : (d.ssid ? 'Sin conexión a "' + d.ssid + '". ' : 'Sin red guardada. ')) + 'La red propia "SmartVolt" sigue activa como respaldo.';
     }
-
+    $('foot').textContent = 'Media móvil de ' + d.avg + ' s · actualiza cada segundo';
     lastData = d;
     renderBill();
-
-    $('conn').textContent = d.sta ? 'Wi-Fi ' + d.ssid + ' · ' + d.ip : 'Red SmartVolt · ' + d.ap_ip;
-    $('wifiInfo').textContent = (d.sta ? 'Conectado a "' + d.ssid + '" (' + d.ip + ', también http://smartvolt.local). '
-      : (d.ssid ? 'Sin conexión a "' + d.ssid + '". ' : 'Sin red guardada. ')) + 'La red propia "SmartVolt" sigue activa.';
-    if (document.activeElement !== $('avgN')) $('avgN').value = d.avg;
-    $('foot').textContent = 'Media móvil de ' + d.avg + ' s · actualiza cada segundo';
   }
 
-  let fails = 0, buzMan = false, ledMan = false;
+  function onData(d){
+    if (!d || !d.valid) return;
+    offset = Date.now()/1000 - d.t;
+    push(d.t, d.v, d.i, d.p);
+    render(d);
+    drawPower();
+  }
+  function onWave(w){
+    if (wavePaused || !w || !w.v) return;
+    wave = w; drawWave(); drawPWave();
+  }
+
+  // ---------------- Acciones (local: HTTP, remoto: MQTT) ----------------
+  const LOCAL_EP = {avg:'/api/avg', energy_reset:'/api/energy/reset', limit:'/api/limit', outputs:'/api/outputs'};
+  async function post(url, body){
+    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
+      body: new URLSearchParams(body || {})});
+    let j = {};
+    try { j = await r.json(); } catch(e){}
+    if (!r.ok) throw new Error(j.error || 'Error ' + r.status);
+    return j;
+  }
+  let remoteSend = null;
+  async function action(name, params){
+    if (REMOTE){
+      if (!remoteSend) throw new Error('Sin conexión con el servidor');
+      const q = new URLSearchParams(params || {}).toString();
+      remoteSend(q ? name + '?' + q : name);
+      return;
+    }
+    await post(LOCAL_EP[name], params);
+    try { onData(await getJson('/api/data', 3000)); } catch(e){}
+  }
+  const flash = (id, txt) => { $(id).textContent = txt; setTimeout(() => { if ($(id).textContent === txt) $(id).textContent = ''; }, 4000); };
+
+  $('avgSave').onclick = async () => {
+    try { await action('avg', {n: $('avgN').value}); flash('avgMsg', 'Guardado'); }
+    catch(e){ flash('avgMsg', e.message); }
+  };
+  $('limSave').onclick = async () => {
+    try {
+      await action('limit', {limit: $('iLim').value || 0, vmin: $('vMin').value || 0, vmax: $('vMax').value || 0,
+        buz_en: $('buzEn').checked ? 1 : 0, led_en: $('ledEn').checked ? 1 : 0});
+      flash('limMsg', 'Guardado');
+    } catch(e){ flash('limMsg', e.message); }
+  };
+  const toggleOut = async (b, l) => {
+    try { await action('outputs', {buz: b ? 1 : 0, led: l ? 1 : 0}); }
+    catch(e){ flash('outMsg', e.message); }
+  };
+  $('buzBtn').onclick = () => toggleOut(!buzMan, ledMan);
+  $('ledBtn').onclick = () => toggleOut(buzMan, !ledMan);
+  $('eReset').onclick = async () => {
+    if (!confirm('¿Poner la energía acumulada en 0 kWh?')) return;
+    try { await action('energy_reset'); flash('eMsg', 'Energía en 0'); }
+    catch(e){ flash('eMsg', e.message); }
+  };
+
   async function getJson(url, ms){
     const ac = window.AbortController ? new AbortController() : null;
     const t = ac ? setTimeout(() => ac.abort(), ms || 3000) : null;
@@ -712,77 +915,205 @@ footer{color:var(--muted);font-size:12px;margin:16px 0 8px;text-align:center}
       return await r.json();
     } finally { if (t) clearTimeout(t); }
   }
-  async function poll(){
-    try {
-      const d = await getJson('/api/data', 3000);
-      if (!wavePaused){
-        try { wave = await getJson('/api/wave', 3000); } catch(e){}
+
+  // ======================= MODO LOCAL (página servida por el ESP32) =======================
+  function startLocal(){
+    document.querySelectorAll('.local-only').forEach(el => el.hidden = false);
+    let fails = 0;
+    async function poll(){
+      try {
+        const d = await getJson('/api/data', 3000);
+        if (!wavePaused){ try { onWave(await getJson('/api/wave', 3000)); } catch(e){} }
+        fails = 0;
+        if (d.valid) onData(d);
+        else setConn('wait', 'Esperando la primera lectura…');
+      } catch(e){
+        if (++fails > 2) setConn('bad', 'Sin conexión con el medidor');
       }
-      fails = 0; $('dot').className = 'dot ok';
-      if (d.valid){
-        offset = Date.now()/1000 - d.t;
-        push(d.t, d.v, d.i, d.p);
-        render(d); drawAll();
-      } else {
-        $('conn').textContent = (d.sta ? 'Wi-Fi ' + d.ssid + ' · ' + d.ip : 'Red SmartVolt · ' + d.ap_ip) + ' · esperando lectura…';
-      }
-    } catch(e){
-      if (++fails > 2){ $('dot').className = 'dot bad'; $('conn').textContent = 'Sin conexión con el medidor'; }
+      setTimeout(poll, 1000);
     }
-    setTimeout(poll, 1000);
+    (async () => {
+      try { mergeHistory(await getJson('/api/history', 5000)); drawPower(); } catch(e){}
+      poll();
+    })();
+
+    $('wSave').onclick = async () => {
+      const ssid = $('ssid').value.trim();
+      if (!ssid){ $('wMsg').textContent = 'Escribe el nombre de la red.'; return; }
+      try {
+        await post('/api/wifi', {ssid, pass: $('pass').value});
+        $('wMsg').textContent = 'Conectando a "' + ssid + '"… En unos segundos la página estará en http://smartvolt.local (o en la IP que muestra la consola).';
+        $('pass').value = '';
+      } catch(e){ $('wMsg').textContent = e.message; }
+    };
+
+    // --- Acceso desde internet ---
+    let cloud = null;
+    function showLink(){
+      if (!cloud || !cloud.page || !$('clHost').value.trim()) { $('clLinkBox').hidden = true; return; }
+      const q = new URLSearchParams({h: $('clHost').value.trim(), u: $('clUser').value.trim(), id: cloud.id});
+      if ($('clPass').value) q.set('p', $('clPass').value);
+      $('clLink').value = cloud.page + '#' + q.toString();
+      $('clLinkBox').hidden = false;
+    }
+    async function loadCloud(){
+      try {
+        cloud = await getJson('/api/cloud', 3000);
+        if (document.activeElement !== $('clHost') && cloud.host) $('clHost').value = cloud.host;
+        if (document.activeElement !== $('clPort') && cloud.port) $('clPort').value = cloud.port;
+        if (document.activeElement !== $('clUser') && cloud.user) $('clUser').value = cloud.user;
+        $('cloudInfo').innerHTML = !cloud.enabled
+          ? 'Desactivado. Configura un servidor MQTT para ver el medidor desde cualquier lugar.'
+          : (cloud.connected ? '<b style="color:var(--good)">● Conectado</b> a ' : '<b style="color:var(--warn)">● Conectando</b> a ')
+            + esc(cloud.host) + '. Código del medidor: <b>' + esc(cloud.id) + '</b>';
+        $('clNote').textContent = cloud.page
+          ? 'Para entrar desde internet abre ' + cloud.page + ' (o el enlace de arriba, que ya trae los datos). Escribe la clave para incluirla en el enlace.'
+          : '';
+        showLink();
+      } catch(e){}
+    }
+    ['clHost', 'clUser', 'clPass'].forEach(id => $(id).addEventListener('input', showLink));
+    $('clSave').onclick = async () => {
+      const host = $('clHost').value.trim();
+      if (!host){ flash('clMsg', 'Escribe el servidor.'); return; }
+      try {
+        await post('/api/cloud', {host, port: $('clPort').value || 8883, user: $('clUser').value.trim(), pass: $('clPass').value});
+        flash('clMsg', 'Guardado. Conectando…');
+        setTimeout(loadCloud, 4000);
+      } catch(e){ flash('clMsg', e.message); }
+    };
+    $('clOff').onclick = async () => {
+      try { await post('/api/cloud', {off: 1}); flash('clMsg', 'Desactivado'); loadCloud(); }
+      catch(e){ flash('clMsg', e.message); }
+    };
+    $('clCopy').onclick = () => {
+      const el = $('clLink'); el.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch(e){}
+      if (!ok && navigator.clipboard) navigator.clipboard.writeText(el.value).then(() => {}, () => {});
+      flash('clMsg', 'Enlace copiado');
+    };
+    loadCloud();
+    setInterval(loadCloud, 10000);
   }
 
-  async function loadHistory(){
-    try {
-      const h = await getJson('/api/history', 4000);
-      for (const x of h) push(x[0], x[1], x[2], x[3]);
-      drawAll();
-    } catch(e){}
+  // ======================= MODO REMOTO (desde internet, por MQTT) =======================
+  function loadScript(urls){
+    return new Promise((ok, fail) => {
+      const tryAt = k => {
+        if (k >= urls.length) return fail(new Error('No se pudo cargar la librería MQTT. ¿Hay internet?'));
+        const s = document.createElement('script');
+        s.src = urls[k]; s.onload = () => ok(); s.onerror = () => { s.remove(); tryAt(k + 1); };
+        document.head.appendChild(s);
+      };
+      if (window.mqtt) ok(); else tryAt(0);
+    });
+  }
+  function wsUrl(host){
+    if (/^wss?:\/\//.test(host)) return host;
+    return 'wss://' + host.replace(/:\d+$/, '') + ':8884/mqtt';
   }
 
-  // ---------------- Configuración ----------------
-  async function post(url, body){
-    const r = await fetch(url, {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body: new URLSearchParams(body || {})});
-    if (!r.ok) throw new Error((await r.json()).error || 'Error');
-  }
-  $('avgSave').onclick = async () => {
-    try { await post('/api/avg', {n: $('avgN').value}); $('avgMsg').textContent = 'Guardado'; }
-    catch(e){ $('avgMsg').textContent = e.message; }
-  };
-  $('limSave').onclick = async () => {
-    try {
-      await post('/api/limit', {limit: $('iLim').value, vmin: $('vMin').value, vmax: $('vMax').value, buz_en: $('buzEn').checked ? 1 : 0, led_en: $('ledEn').checked ? 1 : 0});
-      $('limMsg').textContent = 'Guardado';
-    } catch(e){ $('limMsg').textContent = e.message; }
-  };
-  const toggleOut = async (b, l) => {
-    try {
-      await post('/api/outputs', {buz: b ? 1 : 0, led: l ? 1 : 0});
-      const r = await fetch('/api/data', {cache:'no-store'});
-      render(await r.json());
-      $('outMsg').textContent = '';
-    } catch(e){ $('outMsg').textContent = e.message; }
-  };
-  $('buzBtn').onclick = () => toggleOut(!buzMan, ledMan);
-  $('ledBtn').onclick = () => toggleOut(buzMan, !ledMan);
-  $('eReset').onclick = async () => {
-    if (!confirm('¿Poner la energía acumulada en 0 kWh?')) return;
-    try { await post('/api/energy/reset'); $('eMsg').textContent = 'Energía en 0'; }
-    catch(e){ $('eMsg').textContent = e.message; }
-  };
-  $('wSave').onclick = async () => {
-    const ssid = $('ssid').value.trim();
-    if (!ssid){ $('wMsg').textContent = 'Escribe el nombre de la red.'; return; }
-    try {
-      await post('/api/wifi', {ssid, pass: $('pass').value});
-      $('wMsg').textContent = 'Conectando a "' + ssid + '"… En unos segundos la página estará en http://smartvolt.local (o en la IP que muestra la consola).';
-      $('pass').value = '';
-    } catch(e){ $('wMsg').textContent = e.message; }
-  };
+  function startRemote(){
+    $('modeLbl').textContent = 'Acceso remoto';
+    // Enlace con los datos en el "#": se guardan y se borran de la barra de direcciones
+    if (location.hash.length > 1){
+      const h = new URLSearchParams(location.hash.slice(1));
+      if (h.get('h') && h.get('id')){
+        store.set('sv_remote', {host: h.get('h'), user: h.get('u') || '', pass: h.get('p') || '', id: h.get('id')});
+      }
+      try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
+    }
+    let cfg = store.get('sv_remote', null);
+    let client = null, devOnline = null, lastMsg = 0;
 
-  loadHistory();
-  poll();
+    function showLogin(err){
+      $('login').hidden = false;
+      $('lgHost').value = cfg ? cfg.host : '';
+      $('lgUser').value = cfg ? cfg.user : '';
+      $('lgPass').value = cfg ? cfg.pass : '';
+      $('lgId').value = cfg ? cfg.id : '';
+      $('lgErr').textContent = err || '';
+    }
+    $('lgGo').onclick = () => {
+      const c = {host: $('lgHost').value.trim(), user: $('lgUser').value.trim(), pass: $('lgPass').value, id: $('lgId').value.trim()};
+      if (!c.host || !c.id){ $('lgErr').textContent = 'Escribe el servidor y el código del medidor.'; return; }
+      cfg = c; store.set('sv_remote', cfg);
+      connect();
+    };
+    $('logoutA').onclick = e => {
+      e.preventDefault();
+      store.del('sv_remote'); cfg = null;
+      if (client) client.end(true);
+      client = null; remoteSend = null;
+      showLogin('');
+    };
+
+    function connect(){
+      $('lgErr').textContent = 'Conectando…';
+      setConn('wait', 'Conectando al servidor…');
+      loadScript(MQTT_JS).then(() => {
+        if (client) client.end(true);
+        const base = 'smartvolt/' + cfg.id + '/';
+        let everConnected = false;
+        client = window.mqtt.connect(wsUrl(cfg.host), {
+          username: cfg.user || undefined, password: cfg.pass || undefined,
+          clientId: 'svweb-' + Math.random().toString(16).slice(2, 10),
+          reconnectPeriod: 5000, connectTimeout: 10000, clean: true
+        });
+        remoteSend = msg => client.publish(base + 'cmd', msg);
+        client.on('connect', () => {
+          everConnected = true;
+          $('login').hidden = true; $('logout').hidden = false;
+          setConn('wait', 'Esperando al medidor ' + cfg.id + '…');
+          client.subscribe([base + 'data', base + 'wave', base + 'status', base + 'hist']);
+          client.publish(base + 'cmd', 'history');
+          client.publish(base + 'cmd', 'watch');
+        });
+        client.on('message', (topic, payload) => {
+          const sub = topic.slice(base.length), txt = payload.toString();
+          try {
+            if (sub === 'status'){ devOnline = txt === 'online'; refreshPill(); }
+            else if (sub === 'data'){ lastMsg = Date.now(); onData(JSON.parse(txt)); refreshPill(); }
+            else if (sub === 'wave'){ onWave(JSON.parse(txt)); }
+            else if (sub === 'hist'){ const j = JSON.parse(txt); mergeHistory(j.pts || []); drawPower(); }
+          } catch(e){}
+        });
+        client.on('error', err => {
+          const m = String(err && err.message || err);
+          if (!everConnected){
+            client.end(true); remoteSend = null;
+            showLogin(/auth|authori/i.test(m) ? 'Usuario o clave incorrectos.' : 'No se pudo conectar: ' + m);
+          }
+        });
+        client.on('offline', () => setConn('bad', 'Sin internet · reintentando…'));
+        client.on('reconnect', () => setConn('wait', 'Reconectando…'));
+        // Si no conecta en 12 s, mostrar ayuda
+        setTimeout(() => {
+          if (!everConnected && client){
+            client.end(true); remoteSend = null;
+            showLogin('No hubo respuesta del servidor. Revisa el nombre del servidor (puerto WebSocket 8884).');
+          }
+        }, 12000);
+      }).catch(e => showLogin(e.message));
+    }
+
+    function refreshPill(){
+      if (!client || !client.connected) return;
+      const fresh = Date.now() - lastMsg < 6000;
+      if (devOnline === false) setConn('bad', 'Medidor ' + cfg.id + ' desconectado' + (lastData ? ' · último dato ' + clock(lastData.t) : ''));
+      else if (fresh) setConn('ok', 'En línea · medidor ' + cfg.id);
+      else setConn('wait', 'Esperando datos del medidor…');
+    }
+    // Avisa al medidor que hay alguien mirando (así envía datos cada segundo)
+    setInterval(() => { if (client && client.connected) client.publish('smartvolt/' + cfg.id + '/cmd', 'watch'); refreshPill(); }, 10000);
+    setInterval(refreshPill, 3000);
+
+    if (cfg) connect(); else showLogin('');
+  }
+
+  if (REMOTE) startRemote(); else startLocal();
+  drawAll();
 })();
 </script>
 </body>

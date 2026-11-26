@@ -1,6 +1,8 @@
 #include "web.h"
 #include "meter.h"
-#include "web_page.h"
+#include "web_page.h"   // generado desde docs/index.html por tools/embed_page.py
+#include "cloud.h"
+#include <functional>
 #include <WiFi.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
@@ -69,7 +71,7 @@ static void handle_root() {
   server.send_P(200, "text/html; charset=utf-8", WEB_PAGE);
 }
 
-static void handle_data() {
+String web_data_json() {
   MeterSnapshot m = meter_get_snapshot();
   bool sta = (WiFi.status() == WL_CONNECTED);
   char buf[768];
@@ -94,12 +96,16 @@ static void handle_data() {
   String json = buf;
   json += json_str(s_ssid);
   json += "}";
-  server.sendHeader("Cache-Control", "no-store");
-  server.send(200, "application/json", json);
+  return json;
 }
 
-static void handle_wave() {
-  static float wv[WAVE_LEN], wi[WAVE_LEN];
+static void handle_data() {
+  server.sendHeader("Cache-Control", "no-store");
+  server.send(200, "application/json", web_data_json());
+}
+
+String web_wave_json() {
+  float wv[WAVE_LEN], wi[WAVE_LEN];   // en la pila: la usan la tarea web y la de la nube
   MeterSnapshot m = meter_get_snapshot();
   size_t n = meter_copy_wave(wv, wi, WAVE_LEN);
   String json;
@@ -118,8 +124,12 @@ static void handle_wave() {
     json += num;
   }
   json += "]}";
+  return json;
+}
+
+static void handle_wave() {
   server.sendHeader("Cache-Control", "no-store");
-  server.send(200, "application/json", json);
+  server.send(200, "application/json", web_wave_json());
 }
 
 // Historial en partes, para no armar un texto enorme en memoria
@@ -146,46 +156,121 @@ static void handle_history() {
   server.sendContent("");  // fin de la respuesta
 }
 
-static void handle_avg() {
-  int n = server.arg("n").toInt();
-  if (n < 1 || n > 30) {
-    server.send(400, "application/json", "{\"error\":\"n debe estar entre 1 y 30\"}");
-    return;
+// ----------------------------------------------------------------------------
+// Acciones de la página. Las mismas sirven por HTTP (red local) y por la nube (MQTT).
+// ----------------------------------------------------------------------------
+typedef std::function<bool(const char *key, String &out)> ArgGetter;
+
+static bool is_true(const String &s) { return s == "1" || s == "true"; }
+
+static bool do_action(const char *action, ArgGetter get, String &err) {
+  String a;
+  if (strcmp(action, "avg") == 0) {
+    int n = get("n", a) ? a.toInt() : 0;
+    if (n < 1 || n > 30) { err = "n debe estar entre 1 y 30"; return false; }
+    meter_request_avg((uint8_t)n);
+    return true;
   }
-  meter_request_avg((uint8_t)n);
-  server.send(200, "application/json", "{\"ok\":true}");
+  if (strcmp(action, "energy_reset") == 0) {
+    meter_request_energy_reset();
+    return true;
+  }
+  if (strcmp(action, "limit") == 0) {
+    float lim  = get("limit", a) ? a.toFloat() : 0.0f;
+    float vmin = get("vmin", a) ? a.toFloat() : 0.0f;
+    float vmax = get("vmax", a) ? a.toFloat() : 0.0f;
+    if (lim < 0.0f || lim > 100.0f || vmin < 0.0f || vmin > 300.0f || vmax < 0.0f || vmax > 300.0f) {
+      err = "Límites fuera de rango (I: 0-100 A, V: 0-300 V)";
+      return false;
+    }
+    if (vmin > 0.0f && vmax > 0.0f && vmin >= vmax) { err = "V mín debe ser menor que V máx"; return false; }
+    bool buz_en = get("buz_en", a) && is_true(a);
+    bool led_en = get("led_en", a) && is_true(a);
+    meter_set_limit(lim, vmin, vmax, buz_en, led_en);
+    return true;
+  }
+  if (strcmp(action, "outputs") == 0) {
+    MeterSnapshot m = meter_get_snapshot();
+    bool buz = m.buzzer_manual, led = m.led_manual;
+    if (get("buz", a)) buz = is_true(a);
+    if (get("led", a)) led = is_true(a);
+    meter_set_manual_outputs(buz, led);
+    return true;
+  }
+  err = "Acción desconocida";
+  return false;
 }
 
-static void handle_energy_reset() {
-  meter_request_energy_reset();
-  server.send(200, "application/json", "{\"ok\":true}");
+// Lee "clave" de un texto tipo "a=1&b=hola+mundo" (decodifica + y %XX)
+static bool query_get(const char *q, const char *key, String &out) {
+  size_t klen = strlen(key);
+  const char *p = q;
+  while (p && *p) {
+    const char *amp = strchr(p, '&');
+    const char *end = amp ? amp : p + strlen(p);
+    if ((size_t)(end - p) > klen && strncmp(p, key, klen) == 0 && p[klen] == '=') {
+      out = "";
+      for (const char *c = p + klen + 1; c < end; c++) {
+        if (*c == '+') out += ' ';
+        else if (*c == '%' && c + 2 < end &&isxdigit((unsigned char)c[1]) && isxdigit((unsigned char)c[2])) {
+          char hex[3] = {c[1], c[2], 0};
+          out += (char)strtol(hex, NULL, 16);
+          c += 2;
+        } else out += *c;
+      }
+      return true;
+    }
+    p = amp ? amp + 1 : NULL;
+  }
+  return false;
 }
 
-static void handle_limit() {
-  float lim = server.arg("limit").toFloat();
-  float vmin = server.arg("vmin").toFloat();
-  float vmax = server.arg("vmax").toFloat();
-  if (lim < 0.0f || lim > 100.0f || vmin < 0.0f || vmin > 300.0f || vmax < 0.0f || vmax > 300.0f) {
-    server.send(400, "application/json", "{\"error\":\"Límites fuera de rango (I: 0-100 A, V: 0-300 V)\"}");
-    return;
-  }
-  if (vmin > 0.0f && vmax > 0.0f && vmin >= vmax) {
-    server.send(400, "application/json", "{\"error\":\"V mín debe ser menor que V máx\"}");
-    return;
-  }
-  bool buz_en = (server.arg("buz_en") == "1" || server.arg("buz_en") == "true");
-  bool led_en = (server.arg("led_en") == "1" || server.arg("led_en") == "true");
-  meter_set_limit(lim, vmin, vmax, buz_en, led_en);
-  server.send(200, "application/json", "{\"ok\":true}");
+bool web_apply_action(const char *action, const char *query, String &err) {
+  return do_action(action, [query](const char *k, String &o) { return query_get(query, k, o); }, err);
 }
 
-static void handle_outputs() {
-  MeterSnapshot m = meter_get_snapshot();
-  bool buz = m.buzzer_manual;
-  bool led = m.led_manual;
-  if (server.hasArg("buz")) buz = (server.arg("buz") == "1" || server.arg("buz") == "true");
-  if (server.hasArg("led")) led = (server.arg("led") == "1" || server.arg("led") == "true");
-  meter_set_manual_outputs(buz, led);
+static void http_action(const char *action) {
+  String err;
+  bool ok = do_action(action, [](const char *k, String &o) {
+    if (!server.hasArg(k)) return false;
+    o = server.arg(k);
+    return true;
+  }, err);
+  if (ok) server.send(200, "application/json", "{\"ok\":true}");
+  else server.send(400, "application/json", "{\"error\":" + json_str(err.c_str()) + "}");
+}
+
+// --- Acceso desde internet (configuración de la nube) ---
+static void handle_cloud_get() {
+  CloudInfo c = cloud_get_info();
+  String j = "{\"enabled\":";
+  j += c.enabled ? "true" : "false";
+  j += ",\"connected\":";
+  j += c.connected ? "true" : "false";
+  j += ",\"host\":" + json_str(c.host);
+  j += ",\"port\":" + String(c.port);
+  j += ",\"user\":" + json_str(c.user);
+  j += ",\"id\":" + json_str(c.id);
+  j += ",\"page\":" + json_str(c.page);
+  j += "}";
+  server.sendHeader("Cache-Control", "no-store");
+  server.send(200, "application/json", j);
+}
+
+static void handle_cloud_post() {
+  if (server.hasArg("off")) {
+    cloud_disable();
+    server.send(200, "application/json", "{\"ok\":true}");
+    return;
+  }
+  String host = server.arg("host"), user = server.arg("user"), pass = server.arg("pass");
+  host.trim(); user.trim();
+  int port = server.hasArg("port") ? server.arg("port").toInt() : 8883;
+  if (host.length() == 0 || host.length() > 95 || user.length() > 63 || pass.length() > 95 || port < 1 || port > 65535) {
+    server.send(400, "application/json", "{\"error\":\"Datos del servidor no válidos\"}");
+    return;
+  }
+  cloud_configure(host.c_str(), (uint16_t)port, user.c_str(), pass.c_str());
   server.send(200, "application/json", "{\"ok\":true}");
 }
 
@@ -217,11 +302,13 @@ static void web_task(void *) {
   server.on("/api/data", HTTP_GET, handle_data);
   server.on("/api/history", HTTP_GET, handle_history);
   server.on("/api/wave", HTTP_GET, handle_wave);
-  server.on("/api/avg", HTTP_POST, handle_avg);
-  server.on("/api/energy/reset", HTTP_POST, handle_energy_reset);
-  server.on("/api/limit", HTTP_POST, handle_limit);
-  server.on("/api/outputs", HTTP_POST, handle_outputs);
+  server.on("/api/avg", HTTP_POST, []() { http_action("avg"); });
+  server.on("/api/energy/reset", HTTP_POST, []() { http_action("energy_reset"); });
+  server.on("/api/limit", HTTP_POST, []() { http_action("limit"); });
+  server.on("/api/outputs", HTTP_POST, []() { http_action("outputs"); });
   server.on("/api/wifi", HTTP_POST, handle_wifi);
+  server.on("/api/cloud", HTTP_GET, handle_cloud_get);
+  server.on("/api/cloud", HTTP_POST, handle_cloud_post);
   server.onNotFound([]() { server.send(404, "text/plain", "No encontrado"); });
   server.begin();
 
